@@ -17,9 +17,9 @@ import javafx.stage.Stage;
 
 public class Main extends Application {
 
-    private Image imageback = new Image("file:resources/board1234.png");
-    private Image startDice = new Image("file:resources/DICEROLL6.png");
-    private Image redPawn1 = new Image("file:resources/REDPAWN1.png");
+    private Image imageback = new Image("/images/board1234.png");
+    private Image startDice = new Image("/images/DICEROLL6.png");
+    private Image redPawn1 = new Image("/images/REDPAWN1.png");
     private FlowPane pawns = new FlowPane(Orientation.HORIZONTAL);
 
     public static void main(String[] args) {
@@ -34,15 +34,16 @@ public class Main extends Application {
 
         GridPane grid = new GridPane();
         grid.setAlignment(Pos.CENTER);
-        grid.setPadding(new Insets(50, 50, 50, 50));
+        grid.setPadding(new Insets(600, 600, 600, 600));
         grid.setBackground(background);
 
         ImageView img = new ImageView(redPawn1);
         pawns.getChildren().add(img);
 
-        grid.add(pawns, 0, 0, 3, 1);
 
-        Scene scene = new Scene(grid, 600, 600, Color.BLACK);
+        grid.add(pawns, 5, 5, 1, 1);
+
+        Scene scene = new Scene(grid, 600, 600);
 
         primaryStage.setTitle("DoNotGetAngry");
         primaryStage.setScene(scene);
