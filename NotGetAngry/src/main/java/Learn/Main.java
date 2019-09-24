@@ -1,13 +1,11 @@
 package Learn;
 
 
+import Learn.Board.SetBackGround;
 import javafx.application.Application;
 import javafx.geometry.Insets;
-import javafx.geometry.Orientation;
-import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
@@ -16,36 +14,29 @@ import javafx.stage.Stage;
 
 
 public class Main extends Application {
-
-    private Image imageback = new Image("/images/board1234.png");
-    private Image startDice = new Image("/images/DICEROLL6.png");
-    private Image redPawn1 = new Image("/images/REDPAWN1.png");
-    private FlowPane pawns = new FlowPane(Orientation.HORIZONTAL);
-
     public static void main(String[] args) {
         launch(args);
     }
+    private static  Image image = new Image("file:/images/board1234.png");
+
 
     @Override
-    public void start(Stage primaryStage) throws Exception {
-        BackgroundSize backgroundSize = new BackgroundSize(600, 600, true, true, true, false);
-        BackgroundImage backgroundImage = new BackgroundImage(imageback, BackgroundRepeat.REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.CENTER, backgroundSize);
-        Background background = new Background(backgroundImage);
+    public void start(Stage primaryStage)  {
+
+
 
         GridPane grid = new GridPane();
-        grid.setAlignment(Pos.CENTER);
-        grid.setPadding(new Insets(600, 600, 600, 600));
-        grid.setBackground(background);
-
-        ImageView img = new ImageView(redPawn1);
-        pawns.getChildren().add(img);
+        grid.setHgap(17);
+        grid.setVgap(16);
+        grid.setPadding(new Insets(40, 22, 22, 45));
+        grid.setBackground(SetBackGround.setNewBackground(image));
 
 
-        grid.add(pawns, 5, 5, 1, 1);
 
-        Scene scene = new Scene(grid, 600, 600);
 
-        primaryStage.setTitle("DoNotGetAngry");
+        Scene scene = new Scene(grid, 600, 600, Color.WHITE);
+
+        primaryStage.setTitle("Do Not Get Angry");
         primaryStage.setScene(scene);
         primaryStage.show();
     }
