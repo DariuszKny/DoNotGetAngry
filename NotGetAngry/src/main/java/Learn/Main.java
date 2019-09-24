@@ -3,6 +3,7 @@ package Learn;
 
 import Learn.Board.SetBackGround;
 import javafx.application.Application;
+import javafx.embed.swing.SwingFXUtils;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
@@ -10,20 +11,28 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
+import javax.imageio.ImageIO;
+import javax.print.DocFlavor;
+import java.awt.image.BufferedImage;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.net.URL;
+
+
+public class Main extends Application  {
 
 
 
-public class Main extends Application {
     public static void main(String[] args) {
         launch(args);
     }
-    private static  Image image = new Image("file:/images/board1234.png");
 
 
     @Override
-    public void start(Stage primaryStage)  {
+    public void start(Stage primaryStage) throws IOException {
 
-
+        String source = "C:\\JavaProjects\\Dariusz-Knysak-kodilla-java-NotGetAngry\\NotGetAngry\\src\\main\\resources\\images\\board1234.png";
+         Image image = new Image(new FileInputStream(source));
 
         GridPane grid = new GridPane();
         grid.setHgap(17);
