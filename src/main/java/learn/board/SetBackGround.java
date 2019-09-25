@@ -1,4 +1,4 @@
-package Learn.Board;
+package learn.board;
 
 import javafx.scene.image.Image;
 import javafx.scene.layout.*;
