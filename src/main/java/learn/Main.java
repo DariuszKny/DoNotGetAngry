@@ -1,5 +1,6 @@
 package learn;
 
+import java.beans.EventHandler;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -19,10 +20,6 @@ import learn.board.SetBackGround;
 
 public class Main extends Application {
 
-    private final Image red = new Image(getClass().getResource("/REDPAWN1.png").toString());
-    private final Image green = new Image(getClass().getResource("/GREENPAWN1.png").toString());
-    private final Image empty = new Image(getClass().getResource("/DICEROLL1.png").toString());
-
     public static void main(String[] args) {
         launch(args);
     }
@@ -30,7 +27,7 @@ public class Main extends Application {
     @Override
     public void start(Stage primaryStage) throws IOException {
 
-        String source = "/images/board1234.png";
+        String source = "/board1234.png";
         Image image = new Image(getClass().getResource(source).toString());
 
         GridPane grid = new GridPane();
@@ -42,13 +39,18 @@ public class Main extends Application {
 
         GameController gameController = new GameController();
 
+
         for (int col = 0; col < 12; col++) {
             for (int row = 0; row < 12; row++) {
-                Field field = new Field(getClass().getResource("/REDPAWN1.png").toString(), col, row, gameController);
+                Field field  = new Field(getClass().getResource("/empty.png").toString(), col, row, gameController, grid);
                 grid.add(field, col, row, 1, 1);
-                gameController.addField(new Coordinates(col, row), field);
             }
         }
+
+        gameController.startField(grid);
+
+
+
 
         Scene scene = new Scene(grid, 600, 600, Color.WHITE);
 

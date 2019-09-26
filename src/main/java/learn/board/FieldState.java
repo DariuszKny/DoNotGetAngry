@@ -6,6 +6,9 @@ public enum FieldState {
 
     GREEN,
 
-    EMPTY
+    DICE,
+
+    EMPTY,
+
 
 }
