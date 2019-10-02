@@ -9,6 +9,7 @@ public class Field extends ImageView {
     String redPawn1 = getClass().getResource("/REDPAWN1.png").toString();
     String greenPawn1 = getClass().getResource("/GREENPAWN2.png").toString();
     String emptyField = getClass().getResource("/empty.png").toString();
+    String passChoice = getClass().getResource("/endturn.png").toString();
     String diceField = getClass().getResource("/DICEROLL1.png").toString();
 
     private GameController gameController;
@@ -27,17 +28,19 @@ public class Field extends ImageView {
     }
 
     private FieldState checkFieldState(String url) {
-        if(url.equals(redPawn1)){
+        if (url.equals(redPawn1)) {
             return FieldState.RED;
-        }
-        else if(url.equals(greenPawn1)){
+        } else if (url.equals(greenPawn1)) {
             return FieldState.GREEN;
-        }
-        else if(url.equals(emptyField)){
-            return FieldState.EMPTY;
-        } else
+        } else if (url.equals(passChoice)) {
+            return FieldState.PASSMOVE;
+        } else if (url.equals(diceField)) {
             return FieldState.DICE;
+        } else {
+            return FieldState.EMPTY;
+        }
     }
+
 
     public String getRedPawn1() {
         return redPawn1;

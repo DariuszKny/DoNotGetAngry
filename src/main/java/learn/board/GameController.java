@@ -18,6 +18,9 @@ public class GameController {
 
     public void startField(GridPane grid) {
 
+       Field fieldOfNoMove = new Field(getClass().getResource("/endturn.png").toString(), 8, 2, this, grid);
+      grid.add(fieldOfNoMove, 8, 2, 1, 1);
+
 
         Field startDice = new Field(getClass().getResource("/DICEROLL1.png").toString(), 10, 2, this, grid);
         grid.add(startDice, 10, 2, 1, 1);
@@ -73,6 +76,12 @@ public class GameController {
 
 
         System.out.println("Clicked element col " + field.getColumn() + " row " + field.getRow() + " state " + field.getFieldState());
+
+        if (field.getFieldState() == FieldState.PASSMOVE && diceRolled ) {
+            diceRolled = false;
+        }
+
+
 
         if (field.getFieldState() == FieldState.DICE && !diceRolled ) {
             rolledDice = rollTheDice();
