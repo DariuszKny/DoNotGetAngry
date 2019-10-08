@@ -1,24 +1,17 @@
-package learn;
-
-import learn.board.Coordinates;
+package learn.board;
 
 import java.util.ArrayList;
 
 public class GreenFieldMap {
 
     public ArrayList<Coordinates> loadGreenMap(){
-
         ArrayList<Coordinates> greenFieldMap = new ArrayList<>();
-
 /// START FIELDS
-
         greenFieldMap.add(0,new Coordinates(8,8));
         greenFieldMap.add(1,new Coordinates(9,8));
         greenFieldMap.add(2,new Coordinates(10,8));
 
 //   MAIN FIELDS
-
-
         greenFieldMap.add(3,new Coordinates(9,6));
         greenFieldMap.add(4,new Coordinates(8,6));
         greenFieldMap.add(5,new Coordinates(7,6));
@@ -51,15 +44,10 @@ public class GreenFieldMap {
         greenFieldMap.add(32,new Coordinates(8 ,4));
         greenFieldMap.add(33,new Coordinates(9 ,4));
         greenFieldMap.add(34,new Coordinates(9 ,5));
-
 //   END FIELDS
-
         greenFieldMap.add(35,new Coordinates(8 ,5));
         greenFieldMap.add(36,new Coordinates(7 ,5));
         greenFieldMap.add(37,new Coordinates(6 ,5));
-
-
         return greenFieldMap;
     }
-
 }

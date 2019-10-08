@@ -3,93 +3,59 @@ package learn.board;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-
 import javafx.scene.image.Image;
 import javafx.scene.layout.GridPane;
-import learn.GreenFieldMap;
-
 import static learn.board.FieldState.EMPTY;
-import static learn.board.FieldState.RED;
 import static learn.board.RollTheDice.rollTheDice;
 
 public class GameController {
 
+    private boolean diceRolled = false;
+    private boolean redMove = false;
+    private boolean greenMove = true;
+    private int rolledDice = 0;
+    private int redPawnsOnFinish = 0;
+    private int greenPawnsOnFinish = 0;
+
+    FieldBank fieldBank = new FieldBank();
+    TurnChanger turnChanger = new TurnChanger();
+
     private Map<Coordinates, Field> fields = new HashMap<>();
 
-    public void startField(GridPane grid) {
-
-       Field fieldOfNoMove = new Field(getClass().getResource("/endturn.png").toString(), 8, 2, this, grid);
-      grid.add(fieldOfNoMove, 8, 2, 1, 1);
-
-
-        Field startDice = new Field(getClass().getResource("/DICEROLL1.png").toString(), 10, 2, this, grid);
-        grid.add(startDice, 10, 2, 1, 1);
-
-
-        Field field1 = new Field(getClass().getResource("/REDPAWN1.png").toString(), 0, 8, this, grid);
-        grid.add(field1, 0, 8, 1, 1);
-        fields.put(new Coordinates(0, 8), field1);
-
-        Field field2 = new Field(getClass().getResource("/REDPAWN1.png").toString(), 1, 8, this, grid);
-        grid.add(field2, 1, 8, 1, 1);
-        fields.put(new Coordinates(1, 8), field2);
-
-        Field field3 = new Field(getClass().getResource("/REDPAWN1.png").toString(), 2, 8, this, grid);
-        grid.add(field3, 2, 8, 1, 1);
-        fields.put(new Coordinates(2, 8), field3);
-
-        Field green1 = new Field(getClass().getResource("/GREENPAWN2.png").toString(), 8, 8, this, grid);
-        grid.add(green1, 8, 8, 1, 1);
-        fields.put(new Coordinates(8, 8), green1);
-
-        Field green2 = new Field(getClass().getResource("/GREENPAWN2.png").toString(), 9, 8, this, grid);
-        grid.add(green2, 9, 8, 1, 1);
-        fields.put(new Coordinates(9, 8), green2);
-
-        Field green3 = new Field(getClass().getResource("/GREENPAWN2.png").toString(), 10, 8, this, grid);
-        grid.add(green3, 10, 8, 1, 1);
-        fields.put(new Coordinates(10, 8), green3);
+    public void addFieldMap(GridPane grid) {
+        fields.put(new Coordinates(0, 8), fieldBank.fieldOfRedPawn0(this, grid));
+        fields.put(new Coordinates(1, 8), fieldBank.fieldOfRedPawn1(this, grid));
+        fields.put(new Coordinates(2, 8), fieldBank.fieldOfRedPawn2(this, grid));
+        fields.put(new Coordinates(8, 8), fieldBank.fieldOfGreenPawn0(this, grid));
+        fields.put(new Coordinates(9, 8), fieldBank.fieldOfGreenPawn1(this, grid));
+        fields.put(new Coordinates(10, 8), fieldBank.fieldOfGreenPawn2(this, grid));
     }
-
-
-    public void addField(Coordinates coordinates, Field field) {
-        fields.put(coordinates, field);
-
-    }
-
-
-    boolean diceRolled = false;
-    boolean movePawn = false;
-    int rolledDice = 0;
-
-
     RedFieldMap redFieldMap = new RedFieldMap();
     ArrayList<Coordinates> redMap = redFieldMap.loadRedMap();
-
     GreenFieldMap greenFieldMap = new GreenFieldMap();
     ArrayList<Coordinates> greenMap = greenFieldMap.loadGreenMap();
 
-    int redPawnsOnFinish = 0;
-    int greenPawnsOnFinish = 0;
-
     public void handleOnMouseClicked(Field field, GridPane grid) {
 
-
-        System.out.println("Clicked element col " + field.getColumn() + " row " + field.getRow() + " state " + field.getFieldState());
-
-        if (field.getFieldState() == FieldState.PASSMOVE && diceRolled ) {
+        if (field.getFieldState() == FieldState.PASS_MOVE && diceRolled ) {
             diceRolled = false;
+            if(greenMove && !redMove){
+                turnChanger.setTurnChangeRed(this, grid);
+                redMove = true;
+                greenMove = false;
+            } else {
+                turnChanger.setTurnChangeGreen(this, grid);
+                redMove = false;
+                greenMove = true;
+            }
         }
-
-
-
+        if (diceRolled && field.getFieldState() == FieldState.DICE) {
+            ErrorBox.display("Dice is already rolled", "Dice is already rolled, Please choose your pawn, or skip move");
+        }
         if (field.getFieldState() == FieldState.DICE && !diceRolled ) {
             rolledDice = rollTheDice();
-
-
-            System.out.println("wynik rzutu kostką = " + rolledDice);
             if (rolledDice == 1) {
-                field.setImage(new Image(getClass().getResource("/DICEROLL1.png").toString()));
+                field.setImage(new Image(getClass().getResource("/Dice_Roll_1.png").toString()));
                 field.setFieldState(FieldState.DICE);
                 diceRolled = true;
             } else if (rolledDice == 2) {
@@ -109,168 +75,122 @@ public class GameController {
                 field.setFieldState(FieldState.DICE);
                 diceRolled = true;
             } else if (rolledDice == 6) {
-
                 field.setImage(new Image(getClass().getResource("/DICEROLL6.png").toString()));
                 field.setFieldState(FieldState.DICE);
                 diceRolled = true;
             }
         }
-
-        if (diceRolled) {
-            System.out.println("DICE IS ROLLED");
-        } else {
-            System.out.println("Please roll a DICE!!!");
+        if (!diceRolled && field.getFieldState() == FieldState.RED) {
+            ErrorBox.display("Roll the dice!", "Please roll the dice first!");
         }
+        if (diceRolled && field.getFieldState() == FieldState.RED && redMove) {
 
-
-        if (diceRolled && field.getFieldState() == FieldState.RED) {
-
-
-            int lol = redMap.indexOf(new Coordinates(field.getColumn(), field.getRow()));
-            System.out.println("indeks wybranego pionka : " + lol);
-
+            int IndexOfChoosenPawn = redMap.indexOf(new Coordinates(field.getColumn(), field.getRow()));
             int movedIndex;
 
-            if(lol <= 2 && rolledDice==6){
+            if(IndexOfChoosenPawn <= 2 && rolledDice==6){
                 movedIndex = 3;
-            } else if(lol<=2 && rolledDice<6) {
-                movedIndex = lol;
+            } else if(IndexOfChoosenPawn<=2 && rolledDice<6) {
+                movedIndex = IndexOfChoosenPawn;
             }   else {
-                movedIndex = lol + rolledDice;
+                movedIndex = IndexOfChoosenPawn + rolledDice;
             }
-
-            System.out.println("indeks nowego pionka " + movedIndex);
-
-            Coordinates coordinates = redMap.get(movedIndex);
-
-
-            int column = coordinates.getCol();
-            int row = coordinates.getRow();
-            Field fieldRed = new Field((getClass().getResource("/REDPAWN1.png").toString()), column, row, this, grid);
-            Field greenField = new Field((getClass().getResource("/GREENPAWN2.png").toString()), column, row, this, grid);
 
             if (movedIndex <= redMap.size() - 1) {
 
+                Coordinates coordinates = redMap.get(movedIndex);
+                int column = coordinates.getCol();
+                int row = coordinates.getRow();
 
-
-                column = coordinates.getCol();
-                row = coordinates.getRow();
-                System.out.println(" coordynate pionka col: " + column + "row : " + row + " moved index = " + movedIndex);
-
-
-                Field lolfield = fields.get(coordinates);
-
+                Field fieldRed = new Field((getClass().getResource("/Red_Pawn.png").toString()), column, row, this, grid);
+                Field greenField = new Field((getClass().getResource("/Green_Pawn.png").toString()), column, row, this, grid);
+                Field fieldToGo = fields.get(coordinates);
 
                 if (!fields.containsKey(new Coordinates(column, row)) ) {
-
 
                     grid.add(fieldRed, column, row, 1, 1);
                     fields.put(coordinates, fieldRed);
                     fields.remove(new Coordinates(field.getColumn(), field.getRow()));
                     System.out.println(" removed col: " + field.getColumn() + "row" + field.getRow());
-                    field.setImage(new Image(getClass().getResource("/empty.png").toString()));
+                    field.setImage(new Image(getClass().getResource("/Empty.png").toString()));
                     diceRolled = false;
 
-                } else if (lolfield.getFieldState() == FieldState.RED && !fields.containsKey(new Coordinates(0, 8))) {
+                    turnChanger.setTurnChangeGreen(this, grid);
+                    redMove = false;
+                    greenMove = true;
 
-                    System.out.println("NIE PRAWIDłowy ruch ");
+                } else if (fields.containsKey(new Coordinates(column, row)) && fieldToGo.getFieldState() == FieldState.RED && !fields.containsKey(new Coordinates(0, 8))) {
+                    ErrorBox.display("Wrong Move", "Please try to choose enother pawn or skip move");
+                } else if (fields.containsKey(new Coordinates(column, row)) && fieldToGo.getFieldState() == FieldState.RED && !fields.containsKey(new Coordinates(1, 8))) {
+                    ErrorBox.display("Wrong Move", "Please try to choose enother pawn or skip move");
+                } else if (fields.containsKey(new Coordinates(column, row)) && fieldToGo.getFieldState() == FieldState.RED && !fields.containsKey(new Coordinates(2, 8))) {
+                    ErrorBox.display("Wrong Move", "Please try to choose enother pawn or skip move");
+                } else if (fields.containsKey(new Coordinates(column, row)) && fieldToGo.getFieldState() == FieldState.GREEN && !fields.containsKey(new Coordinates(8, 8))) {
+                    fieldToGo.setImage(new Image(getClass().getResource("/Empty.png").toString()));
+                    grid.add(fieldRed, column, row, 1, 1);
+                    fields.put(coordinates, fieldRed);
+                    fields.remove(new Coordinates(field.getColumn(), field.getRow()));
 
+                    grid.add(new Field((getClass().getResource("/Green_Pawn.png").toString()), 8, 8, this, grid), 8,8,1,1);
+                    fields.put(new Coordinates(8, 8), (new Field((getClass().getResource("/Green_Pawn.png").toString()), 8, 8, this, grid)));
+                    field.setImage(new Image(getClass().getResource("/Empty.png").toString()));
+                    diceRolled = false;
 
-                } else if (lolfield.getFieldState() == FieldState.RED && !fields.containsKey(new Coordinates(1, 8))) {
+                    turnChanger.setTurnChangeGreen(this, grid);
+                    redMove = false;
+                    greenMove = true;
 
-
-                    System.out.println("NIE PRAWIDłowy ruch ");
-
-                } else if (lolfield.getFieldState() == FieldState.RED && !fields.containsKey(new Coordinates(2, 8))) {
-
-
-                    System.out.println("NIE PRAWIDłowy ruch ");
-
-
-                } else if (lolfield.getFieldState() == FieldState.GREEN && !fields.containsKey(new Coordinates(8, 8))) {
-
-                    lolfield.setImage(new Image(getClass().getResource("/empty.png").toString()));
+                } else if (fields.containsKey(new Coordinates(column, row)) && fieldToGo.getFieldState() == FieldState.GREEN && !fields.containsKey(new Coordinates(9, 8))) {
+                    fieldToGo.setImage(new Image(getClass().getResource("/Empty.png").toString()));
                     grid.add(fieldRed, column, row, 1, 1);
                     fields.put(coordinates, fieldRed);
                     fields.remove(new Coordinates(field.getColumn(), field.getRow()));
 
 
-                    grid.add(new Field((getClass().getResource("/GREENPAWN2.png").toString()), 8, 8, this, grid), 8,8,1,1);
-                    fields.put(new Coordinates(8, 8), (new Field((getClass().getResource("/GREENPAWN2.png").toString()), 8, 8, this, grid)));
-                    field.setImage(new Image(getClass().getResource("/empty.png").toString()));
+                    grid.add(new Field((getClass().getResource("/Green_Pawn.png").toString()), 9, 8, this, grid), 9,8,1,1);
+                    fields.put(new Coordinates(9, 8), (new Field((getClass().getResource("/Green_Pawn.png").toString()), 9, 8, this, grid)));
+                    field.setImage(new Image(getClass().getResource("/Empty.png").toString()));
                     diceRolled = false;
 
+                    turnChanger.setTurnChangeGreen(this, grid);
+                    redMove = false;
+                    greenMove = true;
 
-                } else if (lolfield.getFieldState() == FieldState.GREEN && !fields.containsKey(new Coordinates(9, 8))) {
-
-                    lolfield.setImage(new Image(getClass().getResource("/empty.png").toString()));
+                } else if (fields.containsKey(new Coordinates(column, row)) && fieldToGo.getFieldState() == FieldState.GREEN && !fields.containsKey(new Coordinates(10, 8))){
+                    fieldToGo.setImage(new Image(getClass().getResource("/Empty.png").toString()));
                     grid.add(fieldRed, column, row, 1, 1);
                     fields.put(coordinates, fieldRed);
                     fields.remove(new Coordinates(field.getColumn(), field.getRow()));
 
 
-                    grid.add(new Field((getClass().getResource("/GREENPAWN2.png").toString()), 9, 8, this, grid), 9,8,1,1);
-                    fields.put(new Coordinates(8, 8), (new Field((getClass().getResource("/GREENPAWN2.png").toString()), 9, 8, this, grid)));
-                    field.setImage(new Image(getClass().getResource("/empty.png").toString()));
+                    grid.add(new Field((getClass().getResource("/Green_Pawn.png").toString()), 10, 8, this, grid), 10,8,1,1);
+                    fields.put(new Coordinates(10, 8), (new Field((getClass().getResource("/Green_Pawn.png").toString()), 10, 8, this, grid)));
+                    field.setImage(new Image(getClass().getResource("/Empty.png").toString()));
                     diceRolled = false;
 
+                    turnChanger.setTurnChangeGreen(this, grid);
+                    redMove = false;
+                    greenMove = true;
 
                 } else {
-
-                    lolfield.setImage(new Image(getClass().getResource("/empty.png").toString()));
-                    grid.add(fieldRed, column, row, 1, 1);
-                    fields.put(coordinates, fieldRed);
-                    fields.remove(new Coordinates(field.getColumn(), field.getRow()));
-
-
-                    grid.add(new Field((getClass().getResource("/GREENPAWN2.png").toString()), 10, 8, this, grid), 10,8,1,1);
-                    fields.put(new Coordinates(8, 8), (new Field((getClass().getResource("/GREENPAWN2.png").toString()), 10, 8, this, grid)));
-                    field.setImage(new Image(getClass().getResource("/empty.png").toString()));
-                    diceRolled = false;
-
-                }
-
-
+                ErrorBox.display("Wrong Move", "Please try to choose enother pawn or skip move");
+            }
                 if (movedIndex >= redMap.size() - 3 + redPawnsOnFinish) {
                     redPawnsOnFinish++;
                     redMap.remove(movedIndex);
                     fieldRed.setFieldState(EMPTY);
-                    for (Coordinates x : redMap) {
-                        System.out.println(redMap.indexOf(x));
-                    }
-                }
-
-
-
-
-                for (Map.Entry<Coordinates, Field> entry : fields.entrySet()) {
-                    Coordinates key = entry.getKey();
-                    Field value = entry.getValue();
-
-                    System.out.println("map contains col" + key.getCol() + " row: " + key.getRow());
                 }
             } else {
-                    System.out.println("ERROR - Nie prawidłowy ruch - rzuć kostką jeszcze raz");
-                    diceRolled = false;
+                ErrorBox.display("Wrong Move", "Please try to choose enother pawn or skip move");
                 }
 
         }
-
-
-
-
-
-
-
-
-
-        if (diceRolled && field.getFieldState() == FieldState.GREEN) {
-
-
+        if (!diceRolled && field.getFieldState() == FieldState.GREEN) {
+            ErrorBox.display("Roll the dice!", "Please roll the dice first!");
+        }
+        if (diceRolled && field.getFieldState() == FieldState.GREEN && greenMove) {
 
             int lol = greenMap.indexOf(new Coordinates(field.getColumn(), field.getRow()));
-            System.out.println("indeks wybranego pionka : " + lol);
-
             int movedIndex;
 
             if(lol <= 2 && rolledDice==6){
@@ -280,124 +200,96 @@ public class GameController {
             }   else {
                 movedIndex = lol + rolledDice;
             }
-
-
-            System.out.println("indeks nowego pionka " + movedIndex);
-
             if (movedIndex <= greenMap.size() - 1) {
 
                 Coordinates coordinates = greenMap.get(movedIndex);
-
                 int column = coordinates.getCol();
                 int row = coordinates.getRow();
-                System.out.println(" coordynate pionka col: " + column + "row : " + row);
-
-
-                Field greenField = new Field((getClass().getResource("/GREENPAWN2.png").toString()), column, row, this, grid);
-
-
-
-                Field lolfield = fields.get(coordinates);
-
+                Field greenField = new Field((getClass().getResource("/Green_Pawn.png").toString()), column, row, this, grid);
+                Field fieldToGo = fields.get(coordinates);
 
                 if (!fields.containsKey(new Coordinates(column, row))) {
-
 
                     grid.add(greenField, column, row, 1, 1);
 
                     fields.put(coordinates, greenField);
                     fields.remove(new Coordinates(field.getColumn(), field.getRow()));
                     System.out.println(" removed col: " + field.getColumn() + "row" + field.getRow());
-                    field.setImage(new Image(getClass().getResource("/empty.png").toString()));
+                    field.setImage(new Image(getClass().getResource("/Empty.png").toString()));
                     diceRolled = false;
 
-                } else if (lolfield.getFieldState() == FieldState.RED && !fields.containsKey(new Coordinates(0, 8))) {
+                    turnChanger.setTurnChangeRed(this, grid);
+                    redMove = true;
+                    greenMove = false;
+                } else if (fields.containsKey(new Coordinates(column, row)) && fieldToGo.getFieldState() == FieldState.RED && !fields.containsKey(new Coordinates(0, 8))) {
 
-                    lolfield.setImage(new Image(getClass().getResource("/empty.png").toString()));
+                    fieldToGo.setImage(new Image(getClass().getResource("/Empty.png").toString()));
                     grid.add(greenField, column, row, 1, 1);
                     fields.put(coordinates, greenField);
                     fields.remove(new Coordinates(field.getColumn(), field.getRow()));
 
-
-                    grid.add(new Field((getClass().getResource("/REDPAWN1.png").toString()), 0, 8, this, grid), 0,8,1,1);
-                    fields.put(new Coordinates(0, 8), (new Field((getClass().getResource("/REDPAWN1.png").toString()), 0, 8, this, grid)));
-                    field.setImage(new Image(getClass().getResource("/empty.png").toString()));
+                    grid.add(new Field((getClass().getResource("/Red_Pawn.png").toString()), 0, 8, this, grid), 0,8,1,1);
+                    fields.put(new Coordinates(0, 8), (new Field((getClass().getResource("/Red_Pawn.png").toString()), 0, 8, this, grid)));
+                    field.setImage(new Image(getClass().getResource("/Empty.png").toString()));
                     diceRolled = false;
 
+                    turnChanger.setTurnChangeRed(this, grid);
+                    redMove = true;
+                    greenMove = false;
 
-                } else if (lolfield.getFieldState() == FieldState.RED && !fields.containsKey(new Coordinates(1, 8))) {
+                } else if (fields.containsKey(new Coordinates(column, row)) && fieldToGo.getFieldState() == FieldState.RED && !fields.containsKey(new Coordinates(1, 8))) {
 
-
-                    lolfield.setImage(new Image(getClass().getResource("/empty.png").toString()));
+                    fieldToGo.setImage(new Image(getClass().getResource("/Empty.png").toString()));
                     grid.add(greenField, column, row, 1, 1);
                     fields.put(coordinates, greenField);
                     fields.remove(new Coordinates(field.getColumn(), field.getRow()));
 
-
-                    grid.add(new Field((getClass().getResource("/REDPAWN1.png").toString()), 1, 8, this, grid), 8,8,1,1);
-                    fields.put(new Coordinates(1, 8), (new Field((getClass().getResource("/REDPAWN1.png").toString()), 1, 8, this, grid)));
-                    field.setImage(new Image(getClass().getResource("/empty.png").toString()));
+                    grid.add(new Field((getClass().getResource("/Red_Pawn.png").toString()), 1, 8, this, grid), 1,8,1,1);
+                    fields.put(new Coordinates(1, 8), (new Field((getClass().getResource("/Red_Pawn.png").toString()), 1, 8, this, grid)));
+                    field.setImage(new Image(getClass().getResource("/Empty.png").toString()));
                     diceRolled = false;
 
-                } else if (lolfield.getFieldState() == FieldState.RED && !fields.containsKey(new Coordinates(2, 8))) {
+                    turnChanger.setTurnChangeRed(this, grid);
+                    redMove = true;
+                    greenMove = false;
+                } else if (fields.containsKey(new Coordinates(column, row)) && fieldToGo.getFieldState() == FieldState.RED && !fields.containsKey(new Coordinates(2, 8))) {
 
-
-                    lolfield.setImage(new Image(getClass().getResource("/empty.png").toString()));
+                    fieldToGo.setImage(new Image(getClass().getResource("/Empty.png").toString()));
                     grid.add(greenField, column, row, 1, 1);
                     fields.put(coordinates, greenField);
                     fields.remove(new Coordinates(field.getColumn(), field.getRow()));
 
-
-                    grid.add(new Field((getClass().getResource("/REDPAWN1.png").toString()), 2, 8, this, grid), 2,8,1,1);
-                    fields.put(new Coordinates(2, 8), (new Field((getClass().getResource("/REDPAWN1.png").toString()), 2, 8, this, grid)));
-                    field.setImage(new Image(getClass().getResource("/empty.png").toString()));
+                    grid.add(new Field((getClass().getResource("/Red_Pawn.png").toString()), 2, 8, this, grid), 2,8,1,1);
+                    fields.put(new Coordinates(2, 8), (new Field((getClass().getResource("/Red_Pawn.png").toString()), 2, 8, this, grid)));
+                    field.setImage(new Image(getClass().getResource("/Empty.png").toString()));
                     diceRolled = false;
 
-
-                } else if (lolfield.getFieldState() == FieldState.GREEN && !fields.containsKey(new Coordinates(8, 8))) {
-
-                    System.out.println("NIE PRAWIDłowy ruch ");
-
-
-                } else if (lolfield.getFieldState() == FieldState.GREEN && !fields.containsKey(new Coordinates(9, 8))) {
-
-                    System.out.println("NIE PRAWIDłowy ruch ");
-
-
-                } else if(lolfield.getFieldState() == FieldState.GREEN && !fields.containsKey(new Coordinates(10, 8))) {
-
-                    System.out.println("NIE PRAWIDłowy ruch ");
-
+                    turnChanger.setTurnChangeRed(this, grid);
+                    redMove = true;
+                    greenMove = false;
+                } else if (fields.containsKey(new Coordinates(column, row)) && fieldToGo.getFieldState() == FieldState.GREEN && !fields.containsKey(new Coordinates(8, 8))) {
+                    ErrorBox.display("Wrong Move", "Please try to choose enother pawn or skip move");
+                } else if (fields.containsKey(new Coordinates(column, row)) && fieldToGo.getFieldState() == FieldState.GREEN && !fields.containsKey(new Coordinates(9, 8))) {
+                    ErrorBox.display("Wrong Move", "Please try to choose enother pawn or skip move");
+                } else if (fields.containsKey(new Coordinates(column, row)) && fieldToGo.getFieldState() == FieldState.GREEN && !fields.containsKey(new Coordinates(10, 8))) {
+                    ErrorBox.display("Wrong Move", "Please try to choose enother pawn or skip move");
+                } else {
+                    ErrorBox.display("Wrong Move", "Please try to choose enother pawn or skip move");
                 }
-
-
-
-
-
                 if (movedIndex >= greenMap.size() - 3 + greenPawnsOnFinish) {
                     greenPawnsOnFinish++;
                     greenMap.remove(movedIndex);
                     greenField.setFieldState(EMPTY);
-                    for (Coordinates x : greenMap) {
-                        System.out.println(greenMap.indexOf(x));
-                    }
                 }
-
-
-
-
-
-
-
             } else {
-                System.out.println("ERROR - Nie prawidłowy ruch - rzuć kostką jeszcze raz");
-                diceRolled = false;
+                ErrorBox.display("Wrong Move", "Please try to choose enother pawn or skip move");
             }
-
-
         }
-
-
+        if(greenPawnsOnFinish==3) {
+            EndGame.endGame("Game is over", "The winner is GREEN");
+        } else if(redPawnsOnFinish==3) {
+            EndGame.endGame("Game is over", "The winner is RED");
+        }
     }
 }
 

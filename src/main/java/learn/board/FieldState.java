@@ -10,7 +10,6 @@ public enum FieldState {
 
     EMPTY,
 
-    PASSMOVE,
-
+    PASS_MOVE,
 
 }

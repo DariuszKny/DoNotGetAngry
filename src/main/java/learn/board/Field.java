@@ -2,15 +2,14 @@ package learn.board;
 
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
-import learn.Main;
 
 public class Field extends ImageView {
 
-    String redPawn1 = getClass().getResource("/REDPAWN1.png").toString();
-    String greenPawn1 = getClass().getResource("/GREENPAWN2.png").toString();
+    String redPawn1 = getClass().getResource("/Red_Pawn.png").toString();
+    String greenPawn1 = getClass().getResource("/Green_Pawn.png").toString();
     String emptyField = getClass().getResource("/empty.png").toString();
-    String passChoice = getClass().getResource("/endturn.png").toString();
-    String diceField = getClass().getResource("/DICEROLL1.png").toString();
+    String passChoice = getClass().getResource("/End_Turn.png").toString();
+    String diceField = getClass().getResource("/Dice_Roll_1.png").toString();
 
     private GameController gameController;
     private int column;
@@ -33,14 +32,13 @@ public class Field extends ImageView {
         } else if (url.equals(greenPawn1)) {
             return FieldState.GREEN;
         } else if (url.equals(passChoice)) {
-            return FieldState.PASSMOVE;
+            return FieldState.PASS_MOVE;
         } else if (url.equals(diceField)) {
             return FieldState.DICE;
         } else {
             return FieldState.EMPTY;
         }
     }
-
 
     public String getRedPawn1() {
         return redPawn1;
